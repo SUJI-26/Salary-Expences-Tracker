@@ -1,3 +1,4 @@
+[![Netlify Status](YOUR_NETLIFY_BADGE_URL)](YOUR_NETLIFY_SITE_URL)
 # Smart Expense Tracker
 
 Mobile-first monthly budget and expense tracker. React 19, Vite 8, Tailwind CSS v4, React Router, Recharts, jsPDF, installable PWA. Data is stored in the browser (localStorage); there is no backend.
