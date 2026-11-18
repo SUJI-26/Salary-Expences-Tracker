@@ -2,44 +2,28 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Design tokens. Components use semantic names (bg-card, text-muted …) so light and
-   dark mode are defined once, here. */
-:root {
-  color-scheme: light;
-  --page: #f2f5f3;
-  --card: #ffffff;
-  --sunken: #e8eeeb;
-  --ink: #0f1b17;
-  --muted: #586861;
-  --line: #dae2de;
-  --brand: #5a06c7;
-  --brand-ink: #ffffff;
-  --brand-soft: #dcefe9;
-  --warn: #8f5405;
-  --warn-soft: #fbebcf;
-  --bad: #b42318;
-  --bad-soft: #fde4e1;
-  --scrim: rgb(10 20 16 / 0.5);
-  --shadow-card: 0 1px 2px rgb(15 27 23 / 0.05), 0 3px 12px rgb(15 27 23 / 0.04);
-}
-
+/* Design tokens: black + dark violet. Components use semantic names (bg-card, text-muted …)
+   so the whole palette is defined once, here. Light and dark share the same black/violet
+   palette so the app looks the same whichever theme is selected. */
+:root,
 .dark {
   color-scheme: dark;
-  --page: #0e1512;
-  --card: #16201c;
-  --sunken: #1e2b26;
-  --ink: #eaf1ee;
-  --muted: #9db0a8;
-  --line: #2a3a34;
-  --brand: #3cc5a2;
-  --brand-ink: #06231c;
-  --brand-soft: #173a31;
+  --page: #050407;
+  --card: #0f0b18;
+  --sunken: #080610;
+  --ink: #f2eefc;
+  --muted: #9a91b5;
+  --line: #251b3d;
+  --brand: #8b5cf6;
+  --brand-ink: #ffffff;
+  --brand-soft: #1c1233;
   --warn: #f0b45a;
-  --warn-soft: #3a2c12;
-  --bad: #ff8f80;
-  --bad-soft: #3e1b17;
-  --scrim: rgb(0 0 0 / 0.65);
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3);
+  --warn-soft: #2d2210;
+  --bad: #ff7b8c;
+  --bad-soft: #35121b;
+  --scrim: rgb(0 0 0 / 0.72);
+  --glow: 0 0 0 1px rgb(139 92 246 / 0.18), 0 8px 28px rgb(109 40 217 / 0.16);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.5), 0 4px 18px rgb(88 28 200 / 0.10);
 }
 
 @theme inline {
@@ -58,10 +42,13 @@
   --color-bad-soft: var(--bad-soft);
   --color-scrim: var(--scrim);
   --shadow-card: var(--shadow-card);
+  --shadow-glow: var(--glow);
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
-  --animate-sheet: sheet-in 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --animate-pop: pop-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
-  --animate-fade: fade-in 180ms ease-out;
+  --animate-sheet: sheet-in 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-pop: pop-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-fade: fade-in 200ms ease-out;
+  --animate-rise: rise-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pulse-glow: pulse-glow 2.8s ease-in-out infinite;
 }
 
 @keyframes sheet-in {
@@ -69,23 +56,45 @@
   to { transform: translateY(0); }
 }
 @keyframes pop-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to { opacity: 1; transform: none; }
 }
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(139 92 246 / 0.0); }
+  50% { box-shadow: 0 0 18px 2px rgb(139 92 246 / 0.35); }
+}
+@keyframes bg-drift {
+  0% { background-position: 0% 0%, 100% 100%; }
+  50% { background-position: 8% 6%, 92% 94%; }
+  100% { background-position: 0% 0%, 100% 100%; }
+}
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background: var(--page); }
 
 body {
-  background: var(--page);
+  background-color: var(--page);
+  /* Soft violet glows in two corners, slowly drifting. */
+  background-image:
+    radial-gradient(60rem 40rem at 0% 0%, rgb(109 40 217 / 0.16), transparent 60%),
+    radial-gradient(50rem 36rem at 100% 100%, rgb(139 92 246 / 0.10), transparent 60%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  animation: bg-drift 24s ease-in-out infinite;
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
+
+::selection { background: rgb(139 92 246 / 0.45); color: #fff; }
 
 :focus-visible {
   outline: 2px solid var(--brand);
@@ -95,13 +104,50 @@ body {
 input[type='date'],
 input[type='month'] { min-height: 3rem; }
 
+/* Date/month pickers: keep the native icon visible on the dark background. */
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='month']::-webkit-calendar-picker-indicator { filter: invert(0.8); }
+
 /* Progress / allocation fills animate width changes so a new expense visibly "drains" the bar. */
 .bar-fill { transition: width 420ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 200ms; }
+
+/* ---- Motion ---------------------------------------------------------------
+   Page content: whatever is rendered directly inside <main> rises in when a route
+   mounts, with a small stagger. Works for every page without touching components. */
+main > * { animation: rise-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+main > *:nth-child(2) { animation-delay: 60ms; }
+main > *:nth-child(3) { animation-delay: 120ms; }
+main > *:nth-child(4) { animation-delay: 180ms; }
+main > *:nth-child(n+5) { animation-delay: 240ms; }
+
+/* Buttons and links: smooth colour changes and a tactile press. */
+button, a, [role='button'], input, select, textarea {
+  transition: background-color 180ms, border-color 180ms, color 180ms,
+              box-shadow 220ms, transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 180ms;
+}
+button:not(:disabled):active, [role='button']:active { transform: scale(0.96); }
+
+@media (hover: hover) {
+  button:not(:disabled):hover { box-shadow: 0 0 16px rgb(139 92 246 / 0.25); }
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgb(139 92 246 / 0.22);
+}
+
+/* Optional helpers you can add to any element: card-lift, glow-pulse */
+.card-lift { transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 220ms; }
+@media (hover: hover) {
+  .card-lift:hover { transform: translateY(-3px); box-shadow: var(--glow); }
+}
+.glow-pulse { animation: pulse-glow 2.8s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
